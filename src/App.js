@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Board } from './components/Board'
+import { ResetButton } from './components/ResetButton'
 import { ScoreBoard } from './components/ScoreBoard'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
   const [board, setBoard] = useState(Array(9).fill(null))
   const [xPlaying, setXPlaying] = useState(true)
   const [scores, setScores] = useState({ xScore: 0, oScore: 0 })
+  const [gameOver, setGameOver] = useState(false)
 
   const handleBoxClick = (boxIdx) => {
     const updatedBoard = board.map((value, idx) => {
@@ -30,7 +32,7 @@ function App() {
     const winner = checkWinner(updatedBoard)
 
     if (winner) {
-      if (winner === '0') {
+      if (winner === 'O') {
         let { oScore } = scores
         oScore += 1
         setScores({ ...scores, oScore })
@@ -40,6 +42,8 @@ function App() {
         setScores({ ...scores, xScore })
       }
     }
+
+    checkWinner(updatedBoard)
 
     setBoard(updatedBoard)
 
@@ -51,15 +55,22 @@ function App() {
       const [x, y, z] = WIN_CONDITIONS[i]
 
       if (board[x] && board[x] === board[y] && board[y] === board[z]) {
+        setGameOver(true)
         return board[x]
       }
     }
   }
 
+  const resetBoard = () => {
+    setGameOver(false)
+    setBoard(Array(9).fill(null))
+  }
+
   return (
     <div className="App">
       <ScoreBoard scores={scores} xPlaying={xPlaying} />
-      <Board board={board} onClick={handleBoxClick} />
+      <Board board={board} onClick={gameOver ? resetBoard : handleBoxClick} />
+      <ResetButton resetBoard={resetBoard} />
     </div>
   )
 }
